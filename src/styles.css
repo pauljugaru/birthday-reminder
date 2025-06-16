@@ -1,3 +1,6 @@
+/* Import NgZorro styles */
+@import 'ng-zorro-antd/ng-zorro-antd.min.css';
+
 /* Global styles */
 * {
   box-sizing: border-box;

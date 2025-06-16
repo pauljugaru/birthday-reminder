@@ -94,35 +94,40 @@ import { AuthService } from '../../services/auth';
     </div>
   `,
   styles: [`
-    .login-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 20px;
-    }
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100vw;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
 
-    .login-card {
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
-    }
+  .login-card {
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    margin: 0 auto;
+  }
 
-    .text-center {
-      text-align: center;
-    }
+  .text-center {
+    text-align: center;
+  }
 
-    .text-center a {
-      color: #1890ff;
-      text-decoration: none;
-    }
+  .text-center a {
+    color: #1890ff;
+    text-decoration: none;
+  }
 
-    .text-center a:hover {
-      text-decoration: underline;
-    }
-  `]
+  .text-center a:hover {
+    text-decoration: underline;
+  }
+`]
 })
 export class LoginComponent {
   loginForm: FormGroup;
