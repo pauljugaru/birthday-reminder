@@ -29,7 +29,9 @@ export interface RegisterRequest {
 export class AuthService {
   private apiUrl = 'https://reqres.in/api';
   
+  // Signal pentru utilizatorul curent - cerința pentru signals
   public currentUser = signal<User | null>(null);
+  // Signal pentru starea de login - cerința pentru signals
   public isLoggedIn = signal<boolean>(false);
 
   constructor(private http: HttpClient) {
