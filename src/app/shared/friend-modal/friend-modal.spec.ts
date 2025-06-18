@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FriendModal } from './friend-modal';
+import { FriendModalComponent } from './friend-modal';
 
 describe('FriendModal', () => {
-  let component: FriendModal;
-  let fixture: ComponentFixture<FriendModal>;
+  let component: FriendModalComponent;
+  let fixture: ComponentFixture<FriendModalComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FriendModal]
+      imports: [FriendModalComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(FriendModal);
+    fixture = TestBed.createComponent(FriendModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

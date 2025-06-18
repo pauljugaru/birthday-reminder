@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
@@ -28,7 +28,8 @@ export interface RegisterRequest {
 })
 export class AuthService {
   private apiUrl = 'https://reqres.in/api';
-  
+  private apiKey = 'reqres-free-v1';  // Cheia API primită
+
   // Signal pentru utilizatorul curent - cerința pentru signals
   public currentUser = signal<User | null>(null);
   // Signal pentru starea de login - cerința pentru signals
@@ -39,10 +40,12 @@ export class AuthService {
   }
 
   login(loginData: LoginRequest, rememberMe: boolean = false): Observable<any> {
+    const headers = new HttpHeaders({ 'x-api-key': this.apiKey });
+
     return this.http.post(`${this.apiUrl}/login`, {
       email: loginData.email,
       password: loginData.password
-    }).pipe(
+    }, { headers }).pipe(
       map((response: any) => {
         const user: User = {
           id: 1,
@@ -62,12 +65,14 @@ export class AuthService {
   }
 
   register(registerData: RegisterRequest): Observable<any> {
+    const headers = new HttpHeaders({ 'x-api-key': this.apiKey });
+
     return this.http.post(`${this.apiUrl}/register`, {
       email: registerData.email,
       password: registerData.password,
       first_name: registerData.first_name,
       last_name: registerData.last_name
-    }).pipe(
+    }, { headers }).pipe(
       map((response: any) => {
         return { success: true, data: response };
       }),
