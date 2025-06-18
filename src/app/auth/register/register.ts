@@ -126,35 +126,43 @@ import { AuthService } from '../../services/auth';
     </div>
   `,
   styles: [`
-    .register-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 20px;
-    }
+  .register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 40px;
+    box-sizing: border-box;
+  }
 
-    .register-card {
-      width: 100%;
-      max-width: 450px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
-    }
+  .register-card {
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 
-    .text-center {
-      text-align: center;
-    }
+  .text-center {
+    text-align: center;
+  }
 
-    .text-center a {
-      color: #1890ff;
-      text-decoration: none;
-    }
+  .text-center a {
+    color: #1890ff;
+    text-decoration: none;
+  }
 
-    .text-center a:hover {
-      text-decoration: underline;
-    }
-  `]
+  .text-center a:hover {
+    text-decoration: underline;
+  }
+`]
+
 })
 export class RegisterComponent {
   registerForm: FormGroup;
