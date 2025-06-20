@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-// NgZorro imports
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -13,6 +12,9 @@ import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 
 import { AuthService } from '../services/auth';
 import { FriendsService, Friend } from '../services/friends';
@@ -30,11 +32,13 @@ import { FriendsService, Friend } from '../services/friends';
     NzPopconfirmModule,
     NzIconModule,
     NzAlertModule,
-    NzSpaceModule
+    NzSpaceModule,
+    NzModalModule,
+    NzFormModule,
+    NzDatePickerModule
   ],
   template: `
     <div class="dashboard-container">
-      <!-- Header -->
       <nz-card class="header-card">
         <div class="header-content">
           <div class="header-left">
@@ -51,7 +55,6 @@ import { FriendsService, Friend } from '../services/friends';
         </div>
       </nz-card>
 
-      <!-- Birthday Alert -->
       <nz-alert
         *ngIf="nextBirthday()"
         nzType="info"
@@ -60,7 +63,6 @@ import { FriendsService, Friend } from '../services/friends';
         class="birthday-alert"
       ></nz-alert>
 
-      <!-- Controls -->
       <nz-card class="controls-card">
         <div class="controls-content">
           <div class="search-section">
@@ -87,7 +89,6 @@ import { FriendsService, Friend } from '../services/friends';
         </div>
       </nz-card>
 
-      <!-- Table -->
       <nz-card class="table-card">
         <nz-table
           #basicTable
@@ -160,104 +161,194 @@ import { FriendsService, Friend } from '../services/friends';
           </tbody>
         </nz-table>
       </nz-card>
+
+      <nz-modal
+        [(nzVisible)]="isEditModalVisible"
+        nzTitle="Editează Prieten"
+        (nzOnCancel)="closeEditModal()"
+        (nzOnOk)="saveEditedFriend()"
+        [nzOkLoading]="isEditSubmitting"
+        nzOkText="Salvează"
+        nzCancelText="Anulează"
+        nzWidth="500px"
+      >
+        <ng-container *nzModalContent>
+          <form nz-form nzLayout="vertical" class="edit-form">
+            <nz-form-item>
+              <nz-form-label nzRequired>Prenume</nz-form-label>
+              <nz-form-control>
+                <input
+                  nz-input
+                  type="text"
+                  [(ngModel)]="editForm.firstName"
+                  name="firstName"
+                  placeholder="Introduceți prenumele"
+                  required
+                />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzRequired>Nume</nz-form-label>
+              <nz-form-control>
+                <input
+                  nz-input
+                  type="text"
+                  [(ngModel)]="editForm.lastName"
+                  name="lastName"
+                  placeholder="Introduceți numele"
+                  required
+                />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzRequired>Telefon</nz-form-label>
+              <nz-form-control>
+                <input
+                  nz-input
+                  type="tel"
+                  [(ngModel)]="editForm.phone"
+                  name="phone"
+                  placeholder="Introduceți numărul de telefon"
+                  required
+                />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzRequired>Oraș</nz-form-label>
+              <nz-form-control>
+                <input
+                  nz-input
+                  type="text"
+                  [(ngModel)]="editForm.city"
+                  name="city"
+                  placeholder="Introduceți orașul"
+                  required
+                />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzRequired>Data Nașterii</nz-form-label>
+              <nz-form-control>
+                <nz-date-picker
+                  [(ngModel)]="editForm.birthDate"
+                  name="birthDate"
+                  nzFormat="dd/MM/yyyy"
+                  nzPlaceHolder="Selectați data nașterii"
+                  style="width: 100%"
+                  required
+                ></nz-date-picker>
+              </nz-form-control>
+            </nz-form-item>
+          </form>
+        </ng-container>
+      </nz-modal>
     </div>
   `,
-styles: [`
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-  }
+  styles: [`
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
 
-  .dashboard-container {
-    padding: 24px;
-    background-color: #f0f2f5;
-    min-height: 100vh;
-    width: 100vw;
-    box-sizing: border-box;
-  }
-
-  .header-card {
-    margin-bottom: 24px;
-  }
-
-  .header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .header-left h1 {
-    margin: 0;
-    color: #1890ff;
-    font-size: 28px;
-  }
-
-  .header-left p {
-    margin: 4px 0 0 0;
-    color: #666;
-  }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .birthday-alert {
-    margin-bottom: 24px;
-  }
-
-  .controls-card {
-    margin-bottom: 24px;
-  }
-
-  .controls-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .search-section {
-    flex: 1;
-    max-width: 400px;
-  }
-
-  .table-card {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  @media (max-width: 768px) {
     .dashboard-container {
-      padding: 16px;
+      padding: 24px;
+      background-color: #f0f2f5;
+      min-height: 100vh;
+      width: 100vw;
+      box-sizing: border-box;
+    }
+
+    .header-card {
+      margin-bottom: 24px;
     }
 
     .header-content {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left h1 {
+      margin: 0;
+      color: #1890ff;
+      font-size: 28px;
+    }
+
+    .header-left p {
+      margin: 4px 0 0 0;
+      color: #666;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .birthday-alert {
+      margin-bottom: 24px;
+    }
+
+    .controls-card {
+      margin-bottom: 24px;
     }
 
     .controls-content {
-      flex-direction: column;
-      align-items: stretch;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
     }
 
     .search-section {
-      max-width: none;
+      flex: 1;
+      max-width: 400px;
     }
-  }
-`]
 
+    .table-card {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .edit-form {
+      padding: 20px 0;
+    }
+
+    .edit-form nz-form-item {
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-container {
+        padding: 16px;
+      }
+
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .controls-content {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-section {
+        max-width: none;
+      }
+    }
+  `]
 })
 export class DashboardComponent implements OnInit {
-  // Signals
   private friendsSignal = signal<Friend[]>([]);
   private searchTermSignal = signal<string>('');
   
-  // Computed signals
   filteredFriends = computed(() => {
     const friends = this.friendsSignal();
     const term = this.searchTermSignal().toLowerCase().trim();
@@ -290,12 +381,21 @@ export class DashboardComponent implements OnInit {
     }
   });
 
-  // Component properties
   loading = false;
   searchTerm = '';
   currentUser: any = null;
+  
+  isEditModalVisible = false;
+  isEditSubmitting = false;
+  editingFriendId: number | null = null;
+  editForm = {
+    firstName: '',
+    lastName: '',
+    phone: '',
+    city: '',
+    birthDate: null as Date | null
+  };
 
-  // Sort functions
   sortByFirstName = (a: Friend, b: Friend) => a.firstName.localeCompare(b.firstName);
   sortByLastName = (a: Friend, b: Friend) => a.lastName.localeCompare(b.lastName);
   sortByCity = (a: Friend, b: Friend) => a.city.localeCompare(b.city);
@@ -336,7 +436,69 @@ export class DashboardComponent implements OnInit {
   }
 
   openEditModal(friend: Friend): void {
-    this.message.info('Funcția de editare va fi implementată în pasul următor!');
+    this.editingFriendId = friend.id;
+    this.editForm = {
+      firstName: friend.firstName,
+      lastName: friend.lastName,
+      phone: friend.phone,
+      city: friend.city,
+      birthDate: new Date(friend.birthDate + 'T00:00:00')
+    };
+    this.isEditModalVisible = true;
+  }
+
+  closeEditModal(): void {
+    this.isEditModalVisible = false;
+    this.editingFriendId = null;
+    this.resetEditForm();
+  }
+
+  resetEditForm(): void {
+    this.editForm = {
+      firstName: '',
+      lastName: '',
+      phone: '',
+      city: '',
+      birthDate: null
+    };
+  }
+
+  saveEditedFriend(): void {
+    if (!this.editingFriendId) return;
+
+    if (!this.editForm.firstName || !this.editForm.lastName || 
+        !this.editForm.phone || !this.editForm.city || !this.editForm.birthDate) {
+      this.message.error('Toate câmpurile sunt obligatorii!');
+      return;
+    }
+
+    this.isEditSubmitting = true;
+
+    const updatedFriend: Friend = {
+      id: this.editingFriendId,
+      firstName: this.editForm.firstName.trim(),
+      lastName: this.editForm.lastName.trim(),
+      phone: this.editForm.phone.trim(),
+      city: this.editForm.city.trim(),
+      birthDate: this.formatDateForAPI(this.editForm.birthDate!)
+    };
+
+    this.friendsService.updateFriend(this.editingFriendId, updatedFriend).subscribe({
+      next: (success) => {
+        this.isEditSubmitting = false;
+        if (success) {
+          this.message.success('Prietenul a fost actualizat cu succes!');
+          this.closeEditModal();
+          this.loadFriends();
+        } else {
+          this.message.error('Prietenul nu a fost găsit!');
+        }
+      },
+      error: () => {
+        this.isEditSubmitting = false;
+        this.message.error('Eroare la actualizarea prietenului!');
+      }
+    });
   }
 
   deleteFriend(id: number): void {
@@ -356,12 +518,19 @@ export class DashboardComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
+    const date = new Date(dateString + 'T00:00:00');
     return date.toLocaleDateString('ro-RO', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
     });
+  }
+
+  formatDateForAPI(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   logout(): void {
