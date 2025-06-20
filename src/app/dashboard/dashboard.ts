@@ -162,85 +162,95 @@ import { FriendsService, Friend } from '../services/friends';
       </nz-card>
     </div>
   `,
-  styles: [`
-    .dashboard-container {
-      padding: 24px;
-      background-color: #f0f2f5;
-      min-height: 100vh;
-    }
+styles: [`
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+  }
 
-    .header-card {
-      margin-bottom: 24px;
+  .dashboard-container {
+    padding: 24px;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+  }
+
+  .header-card {
+    margin-bottom: 24px;
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-left h1 {
+    margin: 0;
+    color: #1890ff;
+    font-size: 28px;
+  }
+
+  .header-left p {
+    margin: 4px 0 0 0;
+    color: #666;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .birthday-alert {
+    margin-bottom: 24px;
+  }
+
+  .controls-card {
+    margin-bottom: 24px;
+  }
+
+  .controls-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .search-section {
+    flex: 1;
+    max-width: 400px;
+  }
+
+  .table-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-container {
+      padding: 16px;
     }
 
     .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .header-left h1 {
-      margin: 0;
-      color: #1890ff;
-      font-size: 28px;
-    }
-
-    .header-left p {
-      margin: 4px 0 0 0;
-      color: #666;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .birthday-alert {
-      margin-bottom: 24px;
-    }
-
-    .controls-card {
-      margin-bottom: 24px;
-    }
-
-    .controls-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      align-items: flex-start;
       gap: 16px;
     }
 
+    .controls-content {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
     .search-section {
-      flex: 1;
-      max-width: 400px;
+      max-width: none;
     }
+  }
+`]
 
-    .table-card {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    @media (max-width: 768px) {
-      .dashboard-container {
-        padding: 16px;
-      }
-
-      .header-content {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-      }
-
-      .controls-content {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .search-section {
-        max-width: none;
-      }
-    }
-  `]
 })
 export class DashboardComponent implements OnInit {
   // Signals
