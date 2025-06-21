@@ -162,6 +162,93 @@ import { FriendsService, Friend } from '../services/friends';
         </nz-table>
       </nz-card>
 
+      <!-- Modal pentru adăugare prieten -->
+      <nz-modal
+        [(nzVisible)]="isAddModalVisible"
+        nzTitle="Adaugă Prieten Nou"
+        (nzOnCancel)="closeAddModal()"
+        (nzOnOk)="saveNewFriend()"
+        [nzOkLoading]="isAddSubmitting"
+        nzOkText="Adaugă"
+        nzCancelText="Anulează"
+        nzWidth="500px"
+      >
+        <ng-container *nzModalContent>
+          <form nz-form nzLayout="vertical" class="add-form">
+            <nz-form-item>
+              <nz-form-label nzRequired>Prenume</nz-form-label>
+              <nz-form-control>
+                <input
+                  nz-input
+                  type="text"
+                  [(ngModel)]="addForm.firstName"
+                  name="addFirstName"
+                  placeholder="Introduceți prenumele"
+                  required
+                />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzRequired>Nume</nz-form-label>
+              <nz-form-control>
+                <input
+                  nz-input
+                  type="text"
+                  [(ngModel)]="addForm.lastName"
+                  name="addLastName"
+                  placeholder="Introduceți numele"
+                  required
+                />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzRequired>Telefon</nz-form-label>
+              <nz-form-control>
+                <input
+                  nz-input
+                  type="tel"
+                  [(ngModel)]="addForm.phone"
+                  name="addPhone"
+                  placeholder="Introduceți numărul de telefon"
+                  required
+                />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzRequired>Oraș</nz-form-label>
+              <nz-form-control>
+                <input
+                  nz-input
+                  type="text"
+                  [(ngModel)]="addForm.city"
+                  name="addCity"
+                  placeholder="Introduceți orașul"
+                  required
+                />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzRequired>Data Nașterii</nz-form-label>
+              <nz-form-control>
+                <nz-date-picker
+                  [(ngModel)]="addForm.birthDate"
+                  name="addBirthDate"
+                  nzFormat="dd/MM/yyyy"
+                  nzPlaceHolder="Selectați data nașterii"
+                  style="width: 100%"
+                  required
+                ></nz-date-picker>
+              </nz-form-control>
+            </nz-form-item>
+          </form>
+        </ng-container>
+      </nz-modal>
+
+      <!-- Modal pentru editare prieten -->
       <nz-modal
         [(nzVisible)]="isEditModalVisible"
         nzTitle="Editează Prieten"
@@ -315,11 +402,11 @@ import { FriendsService, Friend } from '../services/friends';
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .edit-form {
+    .edit-form, .add-form {
       padding: 20px 0;
     }
 
-    .edit-form nz-form-item {
+    .edit-form nz-form-item, .add-form nz-form-item {
       margin-bottom: 16px;
     }
 
@@ -385,6 +472,18 @@ export class DashboardComponent implements OnInit {
   searchTerm = '';
   currentUser: any = null;
   
+  // Variabile pentru modal adăugare
+  isAddModalVisible = false;
+  isAddSubmitting = false;
+  addForm = {
+    firstName: '',
+    lastName: '',
+    phone: '',
+    city: '',
+    birthDate: null as Date | null
+  };
+  
+  // Variabile pentru modal editare
   isEditModalVisible = false;
   isEditSubmitting = false;
   editingFriendId: number | null = null;
@@ -431,10 +530,63 @@ export class DashboardComponent implements OnInit {
     this.searchTermSignal.set(this.searchTerm);
   }
 
+  // Funcții pentru modal adăugare
   openAddModal(): void {
-    this.message.info('Funcția de adăugare va fi implementată în pasul următor!');
+    this.resetAddForm();
+    this.isAddModalVisible = true;
   }
 
+  closeAddModal(): void {
+    this.isAddModalVisible = false;
+    this.resetAddForm();
+  }
+
+  resetAddForm(): void {
+    this.addForm = {
+      firstName: '',
+      lastName: '',
+      phone: '',
+      city: '',
+      birthDate: null
+    };
+  }
+
+  saveNewFriend(): void {
+    if (!this.addForm.firstName || !this.addForm.lastName || 
+        !this.addForm.phone || !this.addForm.city || !this.addForm.birthDate) {
+      this.message.error('Toate câmpurile sunt obligatorii!');
+      return;
+    }
+
+    this.isAddSubmitting = true;
+
+    const newFriend: Omit<Friend, 'id'> = {
+      firstName: this.addForm.firstName.trim(),
+      lastName: this.addForm.lastName.trim(),
+      phone: this.addForm.phone.trim(),
+      city: this.addForm.city.trim(),
+      birthDate: this.formatDateForAPI(this.addForm.birthDate!)
+    };
+
+    this.friendsService.addFriend(newFriend).subscribe({
+      next: (addedFriend) => {
+        this.isAddSubmitting = false;
+        if (addedFriend) {
+          this.message.success('Prietenul a fost adăugat cu succes!');
+          this.closeAddModal();
+          this.loadFriends();
+        } else {
+          this.message.error('Eroare la adăugarea prietenului!');
+        }
+      },
+      error: () => {
+        this.isAddSubmitting = false;
+        this.message.error('Eroare la adăugarea prietenului!');
+      }
+    });
+  }
+
+  // Funcții pentru modal editare
   openEditModal(friend: Friend): void {
     this.editingFriendId = friend.id;
     this.editForm = {
