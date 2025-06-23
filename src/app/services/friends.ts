@@ -1,10 +1,20 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, from, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { 
+  collection, 
+  addDoc, 
+  getDocs, 
+  doc, 
+  updateDoc, 
+  deleteDoc,
+  query,
+  orderBy 
+} from 'firebase/firestore';
+import { db } from '../firebase.config';
 
 export interface Friend {
-  id: number;
+  id?: string; // Firebase folosește string pentru ID-uri
   firstName: string;
   lastName: string;
   phone: string;
@@ -17,7 +27,7 @@ export interface Friend {
   providedIn: 'root'
 })
 export class FriendsService {
-  private readonly API_URL = 'https://reqres.in/api/users'; // Fake API
+  private readonly COLLECTION_NAME = 'friends';
   
   // Signal pentru lista de prieteni
   private friendsSignal = signal<Friend[]>([]);
@@ -25,44 +35,30 @@ export class FriendsService {
   // Getter pentru signal (readonly)
   public friends = this.friendsSignal.asReadonly();
 
-  // Date mock pentru început (în absența unui backend real)
-  private mockFriends: Friend[] = [
-    {
-      id: 1,
-      firstName: 'Ana',
-      lastName: 'Popescu',
-      phone: '0721234567',
-      city: 'București',
-      birthDate: '1995-03-15',
-      email: 'ana.popescu@email.com'
-    },
-    {
-      id: 2,
-      firstName: 'Mihai',
-      lastName: 'Ionescu',
-      phone: '0734567890',
-      city: 'Cluj-Napoca',
-      birthDate: '1988-07-22',
-      email: 'mihai.ionescu@email.com'
-    },
-    {
-      id: 3,
-      firstName: 'Elena',
-      lastName: 'Dumitrescu',
-      phone: '0745678901',
-      city: 'Timișoara',
-      birthDate: '1992-11-08',
-      email: 'elena.dumitrescu@email.com'
-    }
-  ];
-
-  constructor(private http: HttpClient) {
-    // Inițializăm cu date mock
-    this.loadMockData();
+  constructor() {
+    // Încărcăm datele de la Firebase la pornire
+    this.loadFriendsFromFirebase();
   }
 
-  private loadMockData(): void {
-    this.friendsSignal.set([...this.mockFriends]);
+  // Încarcă prietenii din Firebase
+  private async loadFriendsFromFirebase(): Promise<void> {
+    try {
+      const q = query(collection(db, this.COLLECTION_NAME), orderBy('firstName'));
+      const querySnapshot = await getDocs(q);
+      const friends: Friend[] = [];
+      
+      querySnapshot.forEach((doc) => {
+        friends.push({
+          id: doc.id,
+          ...doc.data()
+        } as Friend);
+      });
+      
+      this.friendsSignal.set(friends);
+    } catch (error) {
+      console.error('Eroare la încărcarea prietenilor:', error);
+      this.friendsSignal.set([]);
+    }
   }
 
   // Obține toți prietenii
@@ -74,44 +70,75 @@ export class FriendsService {
 
   // Adaugă un prieten nou
   addFriend(friend: Omit<Friend, 'id'>): Observable<Friend> {
-    const newFriend: Friend = {
-      ...friend,
-      id: Math.max(...this.friendsSignal().map(f => f.id), 0) + 1
-    };
+    return from(this.addFriendToFirebase(friend));
+  }
 
-    const updatedFriends = [...this.friendsSignal(), newFriend];
-    this.friendsSignal.set(updatedFriends);
-
-    return of(newFriend);
+  private async addFriendToFirebase(friend: Omit<Friend, 'id'>): Promise<Friend> {
+    try {
+      const docRef = await addDoc(collection(db, this.COLLECTION_NAME), friend);
+      const newFriend: Friend = {
+        id: docRef.id,
+        ...friend
+      };
+      
+      // Actualizăm și local
+      const updatedFriends = [...this.friendsSignal(), newFriend];
+      this.friendsSignal.set(updatedFriends);
+      
+      return newFriend;
+    } catch (error) {
+      console.error('Eroare la adăugarea prietenului:', error);
+      throw error;
+    }
   }
 
   // Actualizează un prieten existent
-  updateFriend(id: number, updatedFriend: Omit<Friend, 'id'>): Observable<Friend> {
-    const friends = this.friendsSignal();
-    const index = friends.findIndex(f => f.id === id);
-    
-    if (index !== -1) {
-      const friend: Friend = { ...updatedFriend, id };
-      const updatedFriends = [...friends];
-      updatedFriends[index] = friend;
-      this.friendsSignal.set(updatedFriends);
-      return of(friend);
+  updateFriend(id: string, updatedFriend: Omit<Friend, 'id'>): Observable<Friend> {
+    return from(this.updateFriendInFirebase(id, updatedFriend));
+  }
+
+  private async updateFriendInFirebase(id: string, updatedFriend: Omit<Friend, 'id'>): Promise<Friend> {
+    try {
+      const friendRef = doc(db, this.COLLECTION_NAME, id);
+      await updateDoc(friendRef, updatedFriend);
+      
+      const friend: Friend = { id, ...updatedFriend };
+      
+      // Actualizăm și local
+      const friends = this.friendsSignal();
+      const index = friends.findIndex(f => f.id === id);
+      if (index !== -1) {
+        const updatedFriends = [...friends];
+        updatedFriends[index] = friend;
+        this.friendsSignal.set(updatedFriends);
+      }
+      
+      return friend;
+    } catch (error) {
+      console.error('Eroare la actualizarea prietenului:', error);
+      throw error;
     }
-    
-    throw new Error('Prietenul nu a fost găsit');
   }
 
   // Șterge un prieten
-  deleteFriend(id: number): Observable<boolean> {
-    const friends = this.friendsSignal();
-    const filteredFriends = friends.filter(f => f.id !== id);
-    
-    if (filteredFriends.length < friends.length) {
+  deleteFriend(id: string): Observable<boolean> {
+    return from(this.deleteFriendFromFirebase(id));
+  }
+
+  private async deleteFriendFromFirebase(id: string): Promise<boolean> {
+    try {
+      await deleteDoc(doc(db, this.COLLECTION_NAME, id));
+      
+      // Actualizăm și local
+      const friends = this.friendsSignal();
+      const filteredFriends = friends.filter(f => f.id !== id);
       this.friendsSignal.set(filteredFriends);
-      return of(true);
+      
+      return true;
+    } catch (error) {
+      console.error('Eroare la ștergerea prietenului:', error);
+      return false;
     }
-    
-    return of(false);
   }
 
   // Caută prieteni după nume, prenume sau oraș

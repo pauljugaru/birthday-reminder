@@ -2,7 +2,6 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -15,7 +14,6 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
-
 import { AuthService } from '../services/auth';
 import { FriendsService, Friend } from '../services/friends';
 
@@ -150,7 +148,7 @@ import { FriendsService, Friend } from '../services/friends';
                     nzSize="small"
                     nz-popconfirm
                     nzPopconfirmTitle="Ești sigur că vrei să ștergi acest prieten?"
-                    (nzOnConfirm)="deleteFriend(friend.id)"
+                    (nzOnConfirm)="deleteFriend(friend.id!)"
                     nz-tooltip="Șterge"
                   >
                     <span nz-icon nzType="delete"></span>
@@ -188,7 +186,6 @@ import { FriendsService, Friend } from '../services/friends';
                 />
               </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
               <nz-form-label nzRequired>Nume</nz-form-label>
               <nz-form-control>
@@ -202,7 +199,6 @@ import { FriendsService, Friend } from '../services/friends';
                 />
               </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
               <nz-form-label nzRequired>Telefon</nz-form-label>
               <nz-form-control>
@@ -216,7 +212,6 @@ import { FriendsService, Friend } from '../services/friends';
                 />
               </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
               <nz-form-label nzRequired>Oraș</nz-form-label>
               <nz-form-control>
@@ -230,7 +225,6 @@ import { FriendsService, Friend } from '../services/friends';
                 />
               </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
               <nz-form-label nzRequired>Data Nașterii</nz-form-label>
               <nz-form-control>
@@ -274,7 +268,6 @@ import { FriendsService, Friend } from '../services/friends';
                 />
               </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
               <nz-form-label nzRequired>Nume</nz-form-label>
               <nz-form-control>
@@ -288,7 +281,6 @@ import { FriendsService, Friend } from '../services/friends';
                 />
               </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
               <nz-form-label nzRequired>Telefon</nz-form-label>
               <nz-form-control>
@@ -302,7 +294,6 @@ import { FriendsService, Friend } from '../services/friends';
                 />
               </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
               <nz-form-label nzRequired>Oraș</nz-form-label>
               <nz-form-control>
@@ -316,7 +307,6 @@ import { FriendsService, Friend } from '../services/friends';
                 />
               </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
               <nz-form-label nzRequired>Data Nașterii</nz-form-label>
               <nz-form-control>
@@ -342,7 +332,6 @@ import { FriendsService, Friend } from '../services/friends';
       height: 100%;
       width: 100%;
     }
-
     .dashboard-container {
       padding: 24px;
       background-color: #f0f2f5;
@@ -350,82 +339,66 @@ import { FriendsService, Friend } from '../services/friends';
       width: 100vw;
       box-sizing: border-box;
     }
-
     .header-card {
       margin-bottom: 24px;
     }
-
     .header-content {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-
     .header-left h1 {
       margin: 0;
       color: #1890ff;
       font-size: 28px;
     }
-
     .header-left p {
       margin: 4px 0 0 0;
       color: #666;
     }
-
     .header-right {
       display: flex;
       align-items: center;
       gap: 12px;
     }
-
     .birthday-alert {
       margin-bottom: 24px;
     }
-
     .controls-card {
       margin-bottom: 24px;
     }
-
     .controls-content {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 16px;
     }
-
     .search-section {
       flex: 1;
       max-width: 400px;
     }
-
     .table-card {
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-
     .edit-form, .add-form {
       padding: 20px 0;
     }
-
     .edit-form nz-form-item, .add-form nz-form-item {
       margin-bottom: 16px;
     }
-
     @media (max-width: 768px) {
       .dashboard-container {
         padding: 16px;
       }
-
       .header-content {
         flex-direction: column;
         align-items: flex-start;
         gap: 16px;
       }
-
       .controls-content {
         flex-direction: column;
         align-items: stretch;
       }
-
       .search-section {
         max-width: none;
       }
@@ -433,11 +406,12 @@ import { FriendsService, Friend } from '../services/friends';
   `]
 })
 export class DashboardComponent implements OnInit {
-  private friendsSignal = signal<Friend[]>([]);
+  // SCHIMBAT: Eliminăm signalul local și folosim doar cel din service
   private searchTermSignal = signal<string>('');
   
+  // SCHIMBAT: Folosim signalul din service în loc de cel local
   filteredFriends = computed(() => {
-    const friends = this.friendsSignal();
+    const friends = this.friendsService.friends(); // Folosim signalul din service
     const term = this.searchTermSignal().toLowerCase().trim();
     
     if (!term) return friends;
@@ -486,7 +460,7 @@ export class DashboardComponent implements OnInit {
   // Variabile pentru modal editare
   isEditModalVisible = false;
   isEditSubmitting = false;
-  editingFriendId: number | null = null;
+  editingFriendId: string | null = null;
   editForm = {
     firstName: '',
     lastName: '',
@@ -509,23 +483,12 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUser();
-    this.loadFriends();
+    // SCHIMBAT: Nu mai avem nevoie de loadFriends() separat
+    // Service-ul deja încarcă datele în constructor
   }
 
-  loadFriends(): void {
-    this.loading = true;
-    this.friendsService.getFriends().subscribe({
-      next: (friends) => {
-        this.friendsSignal.set(friends);
-        this.loading = false;
-      },
-      error: () => {
-        this.message.error('Eroare la încărcarea prietenilor!');
-        this.loading = false;
-      }
-    });
-  }
-
+  // SCHIMBAT: Eliminăm loadFriends() pentru că folosim signalul din service
+  
   onSearch(): void {
     this.searchTermSignal.set(this.searchTerm);
   }
@@ -574,7 +537,7 @@ export class DashboardComponent implements OnInit {
         if (addedFriend) {
           this.message.success('Prietenul a fost adăugat cu succes!');
           this.closeAddModal();
-          this.loadFriends();
+          // SCHIMBAT: Nu mai avem nevoie de loadFriends() - signalul se actualizează automat
         } else {
           this.message.error('Eroare la adăugarea prietenului!');
         }
@@ -588,7 +551,7 @@ export class DashboardComponent implements OnInit {
 
   // Funcții pentru modal editare
   openEditModal(friend: Friend): void {
-    this.editingFriendId = friend.id;
+    this.editingFriendId = friend.id!;
     this.editForm = {
       firstName: friend.firstName,
       lastName: friend.lastName,
@@ -626,8 +589,7 @@ export class DashboardComponent implements OnInit {
 
     this.isEditSubmitting = true;
 
-    const updatedFriend: Friend = {
-      id: this.editingFriendId,
+    const updatedFriend: Omit<Friend, 'id'> = {
       firstName: this.editForm.firstName.trim(),
       lastName: this.editForm.lastName.trim(),
       phone: this.editForm.phone.trim(),
@@ -636,14 +598,14 @@ export class DashboardComponent implements OnInit {
     };
 
     this.friendsService.updateFriend(this.editingFriendId, updatedFriend).subscribe({
-      next: (success) => {
+      next: (updatedFriendResult) => {
         this.isEditSubmitting = false;
-        if (success) {
+        if (updatedFriendResult) {
           this.message.success('Prietenul a fost actualizat cu succes!');
           this.closeEditModal();
-          this.loadFriends();
+          // SCHIMBAT: Nu mai avem nevoie de loadFriends() - signalul se actualizează automat
         } else {
-          this.message.error('Prietenul nu a fost găsit!');
+          this.message.error('Eroare la actualizarea prietenului!');
         }
       },
       error: () => {
@@ -653,12 +615,12 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  deleteFriend(id: number): void {
+  deleteFriend(id: string): void {
     this.friendsService.deleteFriend(id).subscribe({
       next: (success) => {
         if (success) {
           this.message.success('Prietenul a fost șters cu succes!');
-          this.loadFriends();
+          // SCHIMBAT: Nu mai avem nevoie de loadFriends() - signalul se actualizează automat
         } else {
           this.message.error('Prietenul nu a fost găsit!');
         }
