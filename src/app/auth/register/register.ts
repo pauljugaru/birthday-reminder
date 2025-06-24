@@ -182,14 +182,12 @@ export class RegisterComponent {
       confirmPassword: ['', [Validators.required]]
     });
 
-    // Adaugă validator pentru confirmarea parolei
     this.registerForm.get('confirmPassword')?.setValidators([
       Validators.required,
       this.passwordMatchValidator.bind(this)
     ]);
   }
 
-  // Validator custom pentru puterea parolei (același ca la login)
   passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) {
@@ -222,7 +220,6 @@ export class RegisterComponent {
     return null;
   }
 
-  // Validator custom pentru potrivirea parolelor
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = this.registerForm?.get('password')?.value;
     const confirmPassword = control.value;

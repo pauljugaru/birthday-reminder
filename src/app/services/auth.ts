@@ -1,14 +1,14 @@
 import { Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../firebase.config'; // actualizează calea dacă e diferită
+import { db } from '../firebase.config'; 
 
 export interface User {
   id: number;
   email: string;
   first_name: string;
   last_name: string;
-  password?: string; // Doar pentru demo, nu folosi în producție!
+  password?: string; 
 }
 
 export interface LoginRequest {
@@ -26,6 +26,7 @@ export interface RegisterRequest {
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuthService {
   public currentUser = signal<User | null>(null);
   public isLoggedIn = signal<boolean>(false);
@@ -66,11 +67,11 @@ export class AuthService {
       const usersRef = collection(db, 'users');
 
       const newUser: User = {
-        id: Date.now(), // sau folosește un UUID dacă vrei
+        id: Date.now(),
         email: registerData.email,
         first_name: registerData.first_name,
         last_name: registerData.last_name,
-        password: registerData.password // doar pentru demo!
+        password: registerData.password 
       };
 
       addDoc(usersRef, newUser).then(() => {

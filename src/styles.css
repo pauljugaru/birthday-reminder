@@ -1,7 +1,5 @@
-/* Import NgZorro styles */
 @import 'ng-zorro-antd/ng-zorro-antd.min.css';
 
-/* Global styles */
 * {
   box-sizing: border-box;
 }
@@ -17,7 +15,6 @@ body {
   background-color: #f0f2f5;
 }
 
-/* Custom utility classes */
 .text-center {
   text-align: center;
 }

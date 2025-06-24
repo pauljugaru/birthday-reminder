@@ -146,7 +146,6 @@ export class LoginComponent {
     });
   }
 
-  // Validator custom pentru puterea parolei
   passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) {

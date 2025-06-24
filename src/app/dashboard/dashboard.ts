@@ -406,12 +406,10 @@ import { FriendsService, Friend } from '../services/friends';
   `]
 })
 export class DashboardComponent implements OnInit {
-  // SCHIMBAT: Eliminăm signalul local și folosim doar cel din service
   private searchTermSignal = signal<string>('');
   
-  // SCHIMBAT: Folosim signalul din service în loc de cel local
   filteredFriends = computed(() => {
-    const friends = this.friendsService.friends(); // Folosim signalul din service
+    const friends = this.friendsService.friends(); 
     const term = this.searchTermSignal().toLowerCase().trim();
     
     if (!term) return friends;
@@ -446,7 +444,6 @@ export class DashboardComponent implements OnInit {
   searchTerm = '';
   currentUser: any = null;
   
-  // Variabile pentru modal adăugare
   isAddModalVisible = false;
   isAddSubmitting = false;
   addForm = {
@@ -457,7 +454,6 @@ export class DashboardComponent implements OnInit {
     birthDate: null as Date | null
   };
   
-  // Variabile pentru modal editare
   isEditModalVisible = false;
   isEditSubmitting = false;
   editingFriendId: string | null = null;
@@ -483,17 +479,13 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUser();
-    // SCHIMBAT: Nu mai avem nevoie de loadFriends() separat
-    // Service-ul deja încarcă datele în constructor
   }
 
-  // SCHIMBAT: Eliminăm loadFriends() pentru că folosim signalul din service
   
   onSearch(): void {
     this.searchTermSignal.set(this.searchTerm);
   }
 
-  // Funcții pentru modal adăugare
   openAddModal(): void {
     this.resetAddForm();
     this.isAddModalVisible = true;
@@ -537,7 +529,6 @@ export class DashboardComponent implements OnInit {
         if (addedFriend) {
           this.message.success('Prietenul a fost adăugat cu succes!');
           this.closeAddModal();
-          // SCHIMBAT: Nu mai avem nevoie de loadFriends() - signalul se actualizează automat
         } else {
           this.message.error('Eroare la adăugarea prietenului!');
         }
@@ -549,7 +540,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // Funcții pentru modal editare
   openEditModal(friend: Friend): void {
     this.editingFriendId = friend.id!;
     this.editForm = {
@@ -603,7 +593,6 @@ export class DashboardComponent implements OnInit {
         if (updatedFriendResult) {
           this.message.success('Prietenul a fost actualizat cu succes!');
           this.closeEditModal();
-          // SCHIMBAT: Nu mai avem nevoie de loadFriends() - signalul se actualizează automat
         } else {
           this.message.error('Eroare la actualizarea prietenului!');
         }
@@ -620,7 +609,6 @@ export class DashboardComponent implements OnInit {
       next: (success) => {
         if (success) {
           this.message.success('Prietenul a fost șters cu succes!');
-          // SCHIMBAT: Nu mai avem nevoie de loadFriends() - signalul se actualizează automat
         } else {
           this.message.error('Prietenul nu a fost găsit!');
         }

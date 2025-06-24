@@ -14,12 +14,12 @@ import {
 import { db } from '../firebase.config';
 
 export interface Friend {
-  id?: string; // Firebase folosește string pentru ID-uri
+  id?: string; 
   firstName: string;
   lastName: string;
   phone: string;
   city: string;
-  birthDate: string; // format: YYYY-MM-DD
+  birthDate: string;
   email?: string;
 }
 
@@ -29,18 +29,14 @@ export interface Friend {
 export class FriendsService {
   private readonly COLLECTION_NAME = 'friends';
   
-  // Signal pentru lista de prieteni
   private friendsSignal = signal<Friend[]>([]);
   
-  // Getter pentru signal (readonly)
   public friends = this.friendsSignal.asReadonly();
 
   constructor() {
-    // Încărcăm datele de la Firebase la pornire
     this.loadFriendsFromFirebase();
   }
 
-  // Încarcă prietenii din Firebase
   private async loadFriendsFromFirebase(): Promise<void> {
     try {
       const q = query(collection(db, this.COLLECTION_NAME), orderBy('firstName'));
@@ -61,14 +57,12 @@ export class FriendsService {
     }
   }
 
-  // Obține toți prietenii
   getFriends(): Observable<Friend[]> {
     return of(this.friendsSignal()).pipe(
       catchError(() => of([]))
     );
   }
 
-  // Adaugă un prieten nou
   addFriend(friend: Omit<Friend, 'id'>): Observable<Friend> {
     return from(this.addFriendToFirebase(friend));
   }
@@ -81,7 +75,6 @@ export class FriendsService {
         ...friend
       };
       
-      // Actualizăm și local
       const updatedFriends = [...this.friendsSignal(), newFriend];
       this.friendsSignal.set(updatedFriends);
       
@@ -92,7 +85,6 @@ export class FriendsService {
     }
   }
 
-  // Actualizează un prieten existent
   updateFriend(id: string, updatedFriend: Omit<Friend, 'id'>): Observable<Friend> {
     return from(this.updateFriendInFirebase(id, updatedFriend));
   }
@@ -104,7 +96,6 @@ export class FriendsService {
       
       const friend: Friend = { id, ...updatedFriend };
       
-      // Actualizăm și local
       const friends = this.friendsSignal();
       const index = friends.findIndex(f => f.id === id);
       if (index !== -1) {
@@ -120,7 +111,6 @@ export class FriendsService {
     }
   }
 
-  // Șterge un prieten
   deleteFriend(id: string): Observable<boolean> {
     return from(this.deleteFriendFromFirebase(id));
   }
@@ -129,7 +119,6 @@ export class FriendsService {
     try {
       await deleteDoc(doc(db, this.COLLECTION_NAME, id));
       
-      // Actualizăm și local
       const friends = this.friendsSignal();
       const filteredFriends = friends.filter(f => f.id !== id);
       this.friendsSignal.set(filteredFriends);
@@ -141,7 +130,6 @@ export class FriendsService {
     }
   }
 
-  // Caută prieteni după nume, prenume sau oraș
   searchFriends(searchTerm: string): Friend[] {
     if (!searchTerm.trim()) {
       return this.friendsSignal();
@@ -156,7 +144,6 @@ export class FriendsService {
     );
   }
 
-  // Calculează cea mai apropiată zi de naștere
   getNextBirthday(): { friend: Friend; daysUntil: number } | null {
     const friends = this.friendsSignal();
     if (friends.length === 0) return null;
@@ -171,7 +158,6 @@ export class FriendsService {
       const birthDate = new Date(friend.birthDate);
       const thisYearBirthday = new Date(currentYear, birthDate.getMonth(), birthDate.getDate());
       
-      // Dacă ziua de naștere a trecut în acest an, calculăm pentru anul viitor
       if (thisYearBirthday < today) {
         thisYearBirthday.setFullYear(currentYear + 1);
       }

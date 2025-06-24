@@ -2,7 +2,6 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 
-// NgZorro imports
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -188,12 +187,10 @@ export class FriendModalComponent implements OnInit, OnChanges {
     });
   }
 
-  // Validator custom pentru numărul de telefon
   private phoneValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
 
-    // Format românesc: 07xxxxxxxx sau +407xxxxxxxx
     const phoneRegex = /^(\+?40|0)[7][0-9]{8}$/;
     
     if (!phoneRegex.test(value.replace(/\s/g, ''))) {
@@ -203,7 +200,6 @@ export class FriendModalComponent implements OnInit, OnChanges {
     return null;
   }
 
-  // Funcție pentru a dezactiva datele viitoare
   disabledDate = (current: Date): boolean => {
     return current && current.getTime() > Date.now();
   };
@@ -247,14 +243,12 @@ export class FriendModalComponent implements OnInit, OnChanges {
         birthDate: this.formatDateForSave(formValue.birthDate)
       };
 
-      // Simulăm un mic delay pentru UX
       setTimeout(() => {
         this.loading = false;
         this.save.emit(friendData);
         this.resetForm();
       }, 500);
     } else {
-      // Marchează toate câmpurile ca touched pentru a afișa erorile
       Object.keys(this.friendForm.controls).forEach(key => {
         this.friendForm.get(key)?.markAsTouched();
       });
